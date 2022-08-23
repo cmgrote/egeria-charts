@@ -6,7 +6,7 @@
 egeria:
   # Set to INFO, WARNING, DEBUG if needed
   logging: 
-  version: "3.6"
+  version: "3.10"
   repositoryType: "local-graph-repository"
   debug: false
   persistence: true
@@ -98,32 +98,23 @@ image:
     name: egeria
   presentation:
     name: egeria-react-ui
-    tag: "3.5.0"
+    tag: "3.8.0"
   configure:
     name: egeria-configure
 
-# --- Kafka Configuration ---
+# Normally we install the strimzi operator as part of the Chart. However this requires admin permissions, and
+# will create cluster-scoped resources. Set to false to skip this when in a restricted environment, or needing multiple
+# installs of egeria charts in the same cluster. Requires the strimzi operator to be
+# installed on the cluster by an admin, or a prior install
+strimzi:
+  enabled: true
 
-# When using the k8s-internal Kafka (from Bitnami), enable auto-topic creation and minimize the footprint
-# See https://github.com/bitnami/charts/tree/master/bitnami/kafka for more info
-kafka:
-    #volumePermissions:
-    #enabled: true
-    securityContext:
-        enabled: false
-    zookeeper:
-        persistence: 
-            enabled: true
-    persistence: 
-        enabled: true
-    logpersistence: 
-        enabled: true
-    #can be enabled if external kafka access is required
-    #service:
-        #nodeport: 30092
-
-# Additional configuration notes:
+# If you allow (as is default) this chart to install the strimzi operator, this setting will
+# then allow it to work across all namespaces - so for example it will work if installing another
+# version of the chart, as long as that install has strimzi.enabled=false.
+# However it is better to install strimzi manually for these more complex environments, so the default is false
 #
-# -- We assume we are always providing our own kafka/zookeeper (the VDC chart is an example of this being configurable)
-# -- the kafka topic root is not configurable - may be needed to be configurable if we change the above
-# -- always uses graph repo - inmemory doesn't make sense for a persistent environment
+# helm repo add strimzi https://strimzi.io/charts/
+# helm repo update && helm install strimzi strimzi/strimzi-kafka-operator --set watchAnyNamespace=true
+strimzi-kafka-operator:
+  watchAnyNamespace: false

@@ -7,6 +7,8 @@ egeria:
   user: admin
   cohort: cts
   serverName: cts
+  # Adds a delay between the CTS server being started, and starting the TUT server
+  delay: 10
 
 # --- CTS configuration ---
 # "Scale factor" for the CTS (sets a limit on the overall number of records, search results, etc)
@@ -55,18 +57,18 @@ options:
 # --- Resource limits ---
 resources:
   requests:
+    memory: "4Gi"
+    cpu: "1000m"
+  limits:
     memory: "8Gi"
     cpu: "2000m"
-  limits:
-    memory: "16Gi"
-    cpu: "4000m"
 
 # --- Docker image sources ---
 # Defaults for the images (can be overridden here or individually, see comment below)
 imageDefaults:
   registry: quay.io
   namespace: odpi
-  tag: 3.6
+  tag: "3.10"
   pullPolicy: IfNotPresent
 
 # The following section defines all DOCKER images being used by this chart. Normally they should be left as is,
@@ -80,16 +82,9 @@ image:
   configure:
     name: egeria-configure
 
-# --- Kafka Configuration ---
-
-# When using the k8s-internal Kafka (from Bitnami), enable auto-topic creation and minimize the footprint
-# See https://github.com/bitnami/charts/tree/master/bitnami/kafka for more info
-kafka:
-  zookeeper:
-    persistence:
-      enabled: false
-  securityContext:
-    enabled: false
-  persistence:
-    enabled: false
-...
+# Normally we install the strimzi operator as part of the Chart. However this requires admin permissions, and
+# will create cluster-scoped resources. Set to false to skip this when in a restricted environment, or needing multiple
+# installs of egeria charts in the same cluster. Requires the strimzi operator to be
+# installed on the cluster by an admin, or a prior install
+strimzi:
+  enabled: true
