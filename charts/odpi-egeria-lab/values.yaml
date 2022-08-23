@@ -31,12 +31,25 @@ service:
 egeria:
   #logging: OFF
   development: true
-  version: "3.9"
+  version: "3.10"
   #repositoryType: "local-graph-repository"
   repositoryType: "in-memory-repository"
   # See https://github.com/odpi/egeria-charts/issues/56 for status of the Egeria UI (polymer) in this environment
   # Set to 'true' to deploy the Egeria UI, but note the configuration may not work properly
   egeriaui: true
+
+# Additional connectors/libraries to be made available in egeria server chassis containers
+# This is just an example. You can have a list of connectors
+#downloads:
+  #- url: https://search.maven.org/remotecontent?filepath=org/odpi/egeria/egeria-connector-xtdb/3.9/egeria-connector-xtdb-3.9-jar-with-dependencies.jar
+  #  filename: egeria-connector-xtdb-3.9-jar-with-dependencies.jar
+
+jupyter:
+  # Sleep this long after configuring notebook environment - to aid debug
+  scriptSleepBefore: "0"
+  scriptSleepAfter: "0"
+  # Size for jupyter work
+  storageSize: "1Gi"
 
 debug:
   egeriaJVM: false
@@ -68,8 +81,10 @@ image:
   configure:
     name: egeria-configure
   jupyter:
+    #registry: docker.io
+    #namespace: jupyter
     name: jupyter
-    tag: "latest"
+    tag: "lab-3.4.5"
   uistatic:
     name: egeria-ui
     tag: "3.2.0"
@@ -107,3 +122,10 @@ serviceAccount:
 
 persistence:
   enabled: false
+
+# Normally we install the strimzi operator as part of the Chart. However this requires admin permissions, and
+# will create cluster-scoped resources. Set to false to skip this when in a restricted environment, or needing multiple
+# installs of egeria charts in the same cluster. Requires the strimzi operator to be
+# installed on the cluster by an admin, or a prior install
+strimzi:
+  enabled: true
